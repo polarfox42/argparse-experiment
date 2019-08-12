@@ -39,7 +39,7 @@ def create_file_list(directory_path):
     # собираем нужные данные
     for file in file_list:
         path = os.path.join(directory_path, file)
-        if os.path.isfile(path):
+        if os.path.isfile(path) and path[-3:] == 'txt':
             first_line = get_first_line(path)
             data_for_export.append((file, first_line))
 
