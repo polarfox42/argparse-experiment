@@ -53,7 +53,8 @@ def parse_arguments(arguments, config):
     save = os.path.dirname(os.path.abspath(__file__))
 
     if isinstance(config, configparser.ConfigParser):
-        config_types = config.get('Settings', 'types_list').split(',')
+        config_types = config.get('Settings', 'types_list').split()
+        config_types = [x.replace("'", '') for x in config_types]
         config_report = config.get('Settings', 'report_file_name')
         config_save = config.get('Settings', 'path_to_save')
 
@@ -82,7 +83,7 @@ def get_first_line(file_path, coding):
     return first_line
 
 
-def create_file_list(directory_path, coding, knowing_types: list):
+def create_file_list(directory_path, coding, knowing_types):
     '''Создаем список файлов в данной директории'''
     file_list = os.listdir(directory_path)
     data_for_export = []
