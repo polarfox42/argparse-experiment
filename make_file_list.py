@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
 import os
@@ -35,11 +35,11 @@ def get_config(path):
     '''
     Получаем параметры из файла конфигурации
     '''
-    if not os.path.exists(path):
-        return None
-
-    config = configparser.ConfigParser()
-    config.read(path)
+    if os.path.exists(path):
+        config = configparser.ConfigParser()
+        config.read(path)
+    else:
+        config = -1
 
     return config
 
@@ -48,20 +48,24 @@ def parse_arguments(arguments, config):
     '''
     Разбираем все возможные пути прихода аргументов, в приоритете командная строка.
     '''
-    types = ['.py', '.json', '.txt', '.csv']
+    types = ['.py', '.txt', '.csv']
     report = 'report.txt'
-    save = os.path.dirname(os.path.abspath('make_file_list.py'))
+    save = os.path.dirname(os.path.abspath(__file__))
 
-    if config is not None:
-        if len(config.get('Settings', 'types_list')) > 0:
-            types = config.get('Settings', 'types_list')
-        if len(config.get('Settings', 'report_file_name')) > 0:
-            report = config.get('Settings', 'report_file_name')
-        if len(config.get('Settings', 'path_to_save')) > 0:
-            save = config.get('Settings', 'path_to_save')
+    if isinstance(config, configparser.ConfigParser):
+        config_types = config.get('Settings', 'types_list').split(',')
+        config_report = config.get('Settings', 'report_file_name')
+        config_save = config.get('Settings', 'path_to_save')
+
+        if config_types != '':
+            types = config_types
+        if config_report != '':
+            report = config_report
+        if config_save != '':
+            save = config_save
 
     if arguments.describe is None:
-        arguments.describe = os.path.dirname(os.path.abspath('make_file_list.py'))
+        arguments.describe = os.path.dirname(os.path.abspath(__file__))
     if arguments.save is None:
         arguments.save = save
 
@@ -107,7 +111,7 @@ def main() -> None:
     Вызывается при запуске из консоли
     '''
     parser = create_parser()
-    config_file = 'config.ini'
+    config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.ini')
     config = get_config(config_file)
     namespace = parser.parse_args()
     namespace, knowing_types, report = parse_arguments(namespace, config)
